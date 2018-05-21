@@ -83,22 +83,43 @@ void ElegirNombresJugadores(char J1[], char J2[]);
 int ElegirDificultad();
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 
-void Tablero(int dificultad);
+void Tablero(int dificultad, int &marcador1, int &marcador2);
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 
 void BarajarCartas(int A[], int n);
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 
-void GeneraTablero(int Tablero[][5], int renTablero, int MazoCartas[]);
+void GeneraTablero(int Tablero[][10], int renTablero, int MazoCartas[]);
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 
-void Juego_Principiante();
+void Juego_Principiante(int &marcador1, int &marcador2);
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 
-void ImprimeTablero(int Tablero[][5], int renTablero);
+void ImprimeTablero(int Tablero[][10], int renTablero);
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 
 void ImprimeCartaVolteada(int ancho, int alto, int x, int y);
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
+
+void Juego_Intermedio(int &marcador1, int &marcador2);
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
+
+void Juego_Experto(int &marcador1, int &marcador2);
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
+
+void MoverPosicionTablero_Horizontal(int &x, int y, int dificultad, int direccion);
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
+
+void MoverPosicionTablero_Vertical(int x, int &y, int dificultad, int direccion);
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
+
+void ImprimeMarcador(int &marcador, int jugador);
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
+
+void MostrarCarta(int ancho, int alto, int x, int y);
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
+
+void Gameloop(int &i_1, int &i_2, int &j_1, int &j_1, int &Opcion1, int &Opcion2 );
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 
 int main()
@@ -186,10 +207,14 @@ void BorraMarco(int ancho, int alto, int x, int y)
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------
 
+
 int MenuPrincipal()
 {
     char tecla; //Este va a se como el centinela que anda checando que tecla presiona el usuario.
     int x = 25, y = 1;//Coordenadas en donde se va a comenzar a imprimir el título "Memorama"
+
+
+
 
     //Se imprime el título (MEMORAMA) en la misma posición x, solo la y cambiará porque ps, no puedo darle un endl.
     gotoxy(x,y++);
@@ -273,6 +298,12 @@ int MenuPrincipal()
     x = 86;
     y = 16;
 
+
+
+
+
+
+
     ImprimeMarco(35, 7, x, y );
     //Este goto regresa el cursor a la esquina superior izquierda del mensajito "Jugar", porque desde allí se comienza a
     //imprimir el marco y estas coordenadas son las que voy a usar como referencia para saber sobre cuál opción está el usuario
@@ -343,6 +374,7 @@ int MenuPrincipal()
 void Gestion_Jugar()
 {
     int dificultad;
+    int marcador_J1 = 0, marcador_J2 = 0;
     char Jugador_1[1024];
     char Jugador_2[1024];
 
@@ -382,6 +414,8 @@ void Gestion_Jugar()
     cout << "";
     cout << "";
 
+    ImprimeMarcador(marcador_J1, 1);
+
     EstableceColor(BLANCO, AZULCLARO);
     //Aceptar 40 caracteres.
     x = 130, y = 42;
@@ -412,8 +446,9 @@ void Gestion_Jugar()
     cout << "";
     cout << "";
 
-    Tablero(dificultad);
+    ImprimeMarcador(marcador_J2, 2);
 
+    Tablero(dificultad, marcador_J1, marcador_J2);
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -664,38 +699,65 @@ int ElegirDificultad()
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------
 
-void Tablero(int dificultad)
+void Tablero(int dificultad, int &marcador1, int &marcador2)
 {
     switch (dificultad){
-        case PRINCIPIANTE: Juego_Principiante(); break;
-//        case INTERMEDIO: Juego_Intermedio(); break;
-  //      case EXPERTO: Juego_Experto(); break;
+        case PRINCIPIANTE: Juego_Principiante(marcador1, marcador2); break;
+        case INTERMEDIO: Juego_Intermedio(marcador1, marcador2); break;
+        case EXPERTO: Juego_Experto(marcador1, marcador2); break;
     }
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------
 
-void Juego_Principiante()
+void Juego_Principiante(int &marcador1, int &marcador2)
 {
     srand(time(NULL));
+    char tecla;
+
+    int Opcion1, Opcion2, contador_selecciones;
+    int i_1, i_2, j_1, j_2; //Índices elegidos.
+    int x_aux, y_aux;
 
     int CartasPrincipiante[10] = {1,1,2,2,3,3,4,4,5,5};
-    int TableroPrincipiante[2][5];
+    int TableroPrincipiante[2][10];
 
     BarajarCartas(CartasPrincipiante, 10);
     GeneraTablero(TableroPrincipiante, 2, CartasPrincipiante);
 
     int x = 6;
-    int y = 2;
+    int y = 3;
     for (int i = 0 ; i <= 20 ; i += 20){
         for (int j = 0 ; j <= 172 ; j += 43){
-            ImprimeCartaVolteada(30, 19, x+j, y+i);
+            ImprimeCartaVolteada(29, 17, x+j, y+i);
         }
         x=6;
     }
+    x--;
+    y--;
 
-    gotoxy(30,30);
-    system("pause");
+    gotoxy(1, 100);
+    ImprimeTablero(TableroPrincipiante, 2);
+    gotoxy(x,y);
+    EstableceColor(BLANCO, ROJOCLARO);
+    ImprimeMarco(31, 18, x, y);
 
+    contador_selecciones = 0;
+    Opcion1=0;
+    Opcion2 = 0;
+
+    i_1 = 0;
+    j_1 = 0;
+    i_2 = 0;
+    j_2 = 0;
+
+
+
+
+
+    /*if (TableroPrincipiante[i_1][j_1] != 0) MostrarCarta(29, 17, x, y);
+    else Beep(100, 250);*/
+
+    gotoxy(1, 100);
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -713,7 +775,7 @@ void BarajarCartas(int A[], int n)
 }
 //-------------------------------------------------------------------------------------------------------------------------------------------------------
 
-void GeneraTablero(int Tablero[][5], int renTablero, int MazoCartas[])
+void GeneraTablero(int Tablero[][10], int renTablero, int MazoCartas[])
 {
     gotoxy(20, 10);
     int indiceCartas = 0;
@@ -723,7 +785,7 @@ void GeneraTablero(int Tablero[][5], int renTablero, int MazoCartas[])
 }
 //-------------------------------------------------------------------------------------------------------------------------------------------------------
 
-void ImprimeTablero(int Tablero[][5], int renTablero)
+void ImprimeTablero(int Tablero[][10], int renTablero)
 {
     for (int i = 0 ; i < renTablero ; ++i){
         for (int j = 0 ; j < 5 ; ++j) cout << setw(30) << Tablero[i][j];
@@ -737,23 +799,226 @@ void ImprimeCartaVolteada(int ancho, int alto, int x, int y)
     // Parte superior del marco
     EstableceColor(VERDECLARO, ROJOCLARO);
     gotoxy(x,y);
-    cout << ' ';
-    for(int i = 1 ; i <= ancho - 2 ; ++i) cout << ' ';
-    cout << ' ';
+    for(int i = 0 ; i < ancho ; ++i) cout << ' ';
 
     // Parte media del marco
     for(int i = 1 ; i <= alto - 2 ; ++i){
         gotoxy(x,++y);
         cout << ' ';
-        for(int j = 1 ; j <= ancho - 2 ; ++j) cout << ' ';
-        cout << ' ';
+        for(int j = 1 ; j < ancho ; ++j) cout << ' ';
     }
 
     // Parte inferior del marco
     gotoxy(x,++y);
-    cout << ' ';
-    for(int i = 1 ; i <= ancho - 2 ; ++i) cout << ' ';
-    cout << ' ';
+    for(int i = 0 ; i < ancho ; ++i) cout << ' ';
 
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------
+void Juego_Intermedio(int &marcador1, int &marcador2)
+{
+    srand(time(NULL));
+
+    char tecla;
+
+    int CartasIntermedio[] = {1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10,10};
+    int TableroIntermedio[2][10];
+
+    BarajarCartas(CartasIntermedio, 20);
+    GeneraTablero(TableroIntermedio, 2, CartasIntermedio);
+
+    int x = 4;
+    int y = 4;
+    for (int i = 0 ; i <= 19 ; i += 19){
+        for (int j = 0 ; j <= 189 ; j += 21){
+            ImprimeCartaVolteada(17, 15, x+j, y+i);
+        }
+        x=4;
+    }
+    x--;
+    y--;
+
+    gotoxy(x,y);
+    EstableceColor(BLANCO, ROJOCLARO);
+    ImprimeMarco(18, 16, x, y);
+
+    while(tecla !=  ENTER){
+        tecla = getch();
+
+        if (x >= 3 && x < 192 && tecla == FLECHA_DER) MoverPosicionTablero_Horizontal(x,y,INTERMEDIO,FLECHA_DER);
+        if (x > 3 && x <= 192 && tecla == FLECHA_IZQ) MoverPosicionTablero_Horizontal(x,y,INTERMEDIO,FLECHA_IZQ);
+        if (y == 3 && tecla == FLECHA_ABAJO) MoverPosicionTablero_Vertical(x,y,INTERMEDIO,FLECHA_ABAJO);
+        if (y == 22 && tecla == FLECHA_ARRIBA) MoverPosicionTablero_Vertical(x,y,INTERMEDIO,FLECHA_ARRIBA);
+    }
+}
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
+
+void Juego_Experto(int &marcador1, int &marcador2)
+{
+    srand(time(NULL));
+
+    char tecla;
+
+    int Opcion1, Opcion2, contador_selecciones;
+
+    int CartasExperto[] = {1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10,10,11,11,12,12,13,13,14,14,15,15};
+    int TableroExperto[3][10];
+
+    BarajarCartas(CartasExperto, 30);
+    GeneraTablero(TableroExperto, 3, CartasExperto);
+
+    int x = 8;
+    int y = 3;
+    for (int i = 0 ; i <= 26 ; i += 13){
+        for (int j = 0 ; j <= 182 ; j += 20){
+            ImprimeCartaVolteada(18, 11, x+j, y+i);
+        }
+        x=8;
+    }
+
+    x--;
+    y--;
+
+    gotoxy(x,y);
+    EstableceColor(BLANCO, ROJOCLARO);
+    ImprimeMarco(19, 12, x, y);
+
+    while(tecla !=  ENTER){
+        tecla = getch();
+        if (x >= 7 && x < 187 && tecla == FLECHA_DER) MoverPosicionTablero_Horizontal(x,y,EXPERTO,FLECHA_DER);
+        if (x > 7 && x <= 187 && tecla == FLECHA_IZQ) MoverPosicionTablero_Horizontal(x,y,EXPERTO,FLECHA_IZQ);
+        if (y >= 2 && y < 28 && tecla == FLECHA_ABAJO) MoverPosicionTablero_Vertical(x,y,EXPERTO,FLECHA_ABAJO);
+        if (y > 2 && y <= 28 && tecla == FLECHA_ARRIBA) MoverPosicionTablero_Vertical(x,y,EXPERTO,FLECHA_ARRIBA);
+    }
+
+}
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
+void MoverPosicionTablero_Horizontal(int &x, int y, int dificultad, int direccion)
+{
+    int aumentoX, anchoMarco, AltoMarco;
+
+    if (dificultad == PRINCIPIANTE){
+        aumentoX = 43;
+        anchoMarco = 31;
+        AltoMarco = 18;
+    }
+
+    if (dificultad == INTERMEDIO){
+        aumentoX = 21;
+        anchoMarco = 18;
+        AltoMarco = 16;
+    }
+
+    if (dificultad == EXPERTO){
+        aumentoX = 20;
+        anchoMarco = 19;
+        AltoMarco = 12;
+    }
+
+    BorraMarco(anchoMarco, AltoMarco, x, y);
+    gotoxy ( (direccion == FLECHA_IZQ ? x-=aumentoX : x+=aumentoX), y );
+    ImprimeMarco(anchoMarco, AltoMarco, x, y);
+    gotoxy(x, y);
+}
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
+
+void MoverPosicionTablero_Vertical(int x, int &y, int dificultad, int direccion)
+{
+    int aumentoY, anchoMarco, AltoMarco;
+
+    if (dificultad == PRINCIPIANTE){
+        aumentoY = 20;
+        anchoMarco = 31;
+        AltoMarco = 18;
+    }
+
+    if (dificultad == INTERMEDIO){
+        aumentoY = 19;
+        anchoMarco = 18;
+        AltoMarco = 16;
+    }
+
+    if (dificultad == EXPERTO){
+        aumentoY = 13;
+        anchoMarco = 19;
+        AltoMarco = 12;
+    }
+
+    BorraMarco(anchoMarco, AltoMarco, x, y);
+    gotoxy (x, (direccion == FLECHA_ARRIBA ? y-=aumentoY : y+=aumentoY) );
+    ImprimeMarco(anchoMarco, AltoMarco, x, y);
+    gotoxy(x, y);
+}
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
+void ImprimeMarcador(int &marcador, int jugador)
+{
+    int x, y = 50;
+    if (jugador == 1){
+        EstableceColor(BLANCO, ROJOCLARO);
+        x = 50;
+    }else{
+        EstableceColor(BLANCO, AZULCLARO);
+        x = 160;
+    }
+
+    gotoxy(x,y);
+    cout << marcador;
+
+}
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
+
+void MostrarCarta(int ancho, int alto, int x, int y)
+{
+    // Parte superior del marco
+    EstableceColor(ROJOCLARO, ROJOCLARO);
+    x++;
+    y++;
+    gotoxy(x,y);
+    for(int i = 0 ; i < ancho ; ++i) cout << ' ';
+
+    // Parte media del marco
+    for(int i = 1 ; i <= alto - 2 ; ++i){
+        gotoxy(x,++y);
+        cout << ' ';
+        for(int j = 1 ; j < ancho ; ++j) cout << ' ';
+    }
+
+    // Parte inferior del marco
+    gotoxy(x,++y);
+    for(int i = 0 ; i < ancho ; ++i) cout << ' ';
+    EstableceColor(BLANCO, ROJOCLARO);
+
+}
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
+
+void Gameloop(int &i_1, int &i_2, int &j_1, int &j_1, int &Opcion1, int &Opcion2 )
+{
+    for (int k = 0 ; k < 2 ; ++k){
+        tecla = '\0';
+        while(tecla !=  ENTER){
+            tecla = getch();
+            if (x >= 5 && x < 177 && tecla == FLECHA_DER){
+                MoverPosicionTablero_Horizontal(x,y,PRINCIPIANTE,FLECHA_DER);
+                k == 0 ? i_1++ : i_2++;
+            }
+            if (x > 5 && x <= 177 && tecla == FLECHA_IZQ){
+                MoverPosicionTablero_Horizontal(x,y,PRINCIPIANTE,FLECHA_IZQ);
+                k == 0 ? i_1-- : i_2--;
+            }
+            if (y == 2 && tecla == FLECHA_ABAJO){
+                MoverPosicionTablero_Vertical(x,y,PRINCIPIANTE,FLECHA_ABAJO);
+                k == 0 ? j_1++ : j_2++;
+            }
+
+            if (y == 22 && tecla == FLECHA_ARRIBA){
+                MoverPosicionTablero_Vertical(x,y,PRINCIPIANTE,FLECHA_ARRIBA);
+                k == 0 ? j_1-- : j_2--;
+            }
+
+            k == 0 ? Opcion1 = TableroPrincipiante[i_1][j_1] : Opcion2 = TableroPrincipiante[i_2][j_2];
+        }
+        MostrarCarta(29,17,x,y);
+
+    }
+}
+
+
